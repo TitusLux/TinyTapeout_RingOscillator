@@ -1,42 +1,55 @@
 ![](../../workflows/gds/badge.svg) ![](../../workflows/docs/badge.svg) ![](../../workflows/test/badge.svg) ![](../../workflows/fpga/badge.svg)
 
-# Tiny Tapeout Verilog Project Template
+# Tiny Tapeout – Ring Oscillator Counter
 
-- [Read the documentation for project](docs/info.md)
+This project implements a **5-stage inverter-chain ring oscillator** with an external feedback loop and a digital counter to measure the oscillator frequency. The design demonstrates how process, voltage, and temperature variations affect oscillator frequency on real silicon.
 
-## What is Tiny Tapeout?
+The oscillator is enabled via an input pin, the feedback loop is formed externally using a jumper wire, and the number of oscillator transitions is counted over a fixed measurement window. The result is presented on the output pins.
 
-Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get your digital and analog designs manufactured on a real chip.
+---
 
-To learn more and get started, visit https://tinytapeout.com.
+## How it works
 
-## Set up your Verilog project
+- The design contains a **5-stage inverter chain**.
+- The oscillator loop is formed **externally** by connecting `uio[0]` (RING_OUT) to `ui[1]` (RING_IN). This avoids internal combinational feedback so the design is compatible with the Tiny Tapeout synthesis flow.
+- When `ui[0]` (EN) is high, the inverter chain oscillates due to the odd number of inversions in the loop.
+- The oscillator output is synchronized into the system clock domain using a 2-flop synchronizer.
+- Both rising and falling edges of the oscillator are counted over a fixed window of **65,536 clock cycles**.
+- The latched count is output on `uo_out[7:0]`. This value is proportional to the ring oscillator frequency.
 
-1. Add your Verilog files to the `src` folder.
-2. Edit the [info.yaml](info.yaml) and update information about your project, paying special attention to the `source_files` and `top_module` properties. If you are upgrading an existing Tiny Tapeout project, check out our [online info.yaml migration tool](https://tinytapeout.github.io/tt-yaml-upgrade-tool/).
-3. Edit [docs/info.md](docs/info.md) and add a description of your project.
-4. Adapt the testbench to your design. See [test/README.md](test/README.md) for more information.
+Because the oscillator frequency depends on process, voltage, and temperature, different chips (and even the same chip at different temperatures) will produce different counts.
 
-The GitHub action will automatically build the ASIC files using [LibreLane](https://www.zerotoasiccourse.com/terminology/librelane/).
+---
 
-## Enable GitHub actions to build the results page
+## How to test
 
-- [Enabling GitHub Pages](https://tinytapeout.com/faq/#my-github-action-is-failing-on-the-pages-part)
+### On the Tiny Tapeout demo board
+
+1. Provide a clock on the Tiny Tapeout `clk` pin (from the demo board).
+2. Set `ui[0] = 1` to enable the oscillator.
+3. Connect `uio[0]` to `ui[1]` with a jumper wire to form the ring oscillator loop.
+4. Observe `uo_out[7:0]`, which updates once per measurement window and reflects the oscillator frequency.
+5. Try changing temperature (e.g., touch the chip or cool it slightly) and observe changes in the output count.
+
+To disable the oscillator, set `ui[0] = 0`.
+
+### In simulation
+
+The provided cocotb testbench performs basic sanity checks (reset behavior and driven outputs). Because a real ring oscillator relies on analog delay, the RTL simulation does not model the true oscillation behavior. The primary functional validation is intended to be performed on silicon.
+
+---
+
+## Pinout summary
+
+- `ui[0]` – EN (enable ring oscillator)
+- `ui[1]` – RING_IN (external feedback input)
+- `uio[0]` – RING_OUT (jumper to `ui[1]`)
+- `uo_out[7:0]` – COUNT[7:0] (latched edge count per window)
+
+---
 
 ## Resources
 
-- [FAQ](https://tinytapeout.com/faq/)
-- [Digital design lessons](https://tinytapeout.com/digital_design/)
-- [Learn how semiconductors work](https://tinytapeout.com/siliwiz/)
-- [Join the community](https://tinytapeout.com/discord)
-- [Build your design locally](https://www.tinytapeout.com/guides/local-hardening/)
-
-## What next?
-
-- [Submit your design to the next shuttle](https://app.tinytapeout.com/).
-- Edit [this README](README.md) and explain your design, how it works, and how to test it.
-- Share your project on your social network of choice:
-  - LinkedIn [#tinytapeout](https://www.linkedin.com/search/results/content/?keywords=%23tinytapeout) [@TinyTapeout](https://www.linkedin.com/company/100708654/)
-  - Mastodon [#tinytapeout](https://chaos.social/tags/tinytapeout) [@matthewvenn](https://chaos.social/@matthewvenn)
-  - X (formerly Twitter) [#tinytapeout](https://twitter.com/hashtag/tinytapeout) [@tinytapeout](https://twitter.com/tinytapeout)
-  - Bluesky [@tinytapeout.com](https://bsky.app/profile/tinytapeout.com)
+- Tiny Tapeout: https://tinytapeout.com  
+- Docs: https://tinytapeout.com/hdl/testing/  
+- LibreLane: https://www.zerotoasiccourse.com/terminology/librelane/
