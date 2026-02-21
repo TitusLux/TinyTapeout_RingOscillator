@@ -24,7 +24,7 @@ project:
 pinout:
   # Inputs
   ui[0]: "EN"     # Enable signal for the ring oscillator
-  ui[1]: ""
+  ui[1]: "RING_IN" # External feedback input for the ring oscillator (conect from uio[0])
   ui[2]: ""
   ui[3]: ""
   ui[4]: ""
@@ -43,7 +43,7 @@ pinout:
   uo[7]: "ro_7" # Ro count bit 7 MSB
 
   # Bidirectional pins
-  uio[0]: ""
+  uio[0]: "RING_OUT" # Output from the ring oscillator (can be jumpered to RING_IN for external feedback)
   uio[1]: ""
   uio[2]: ""
   uio[3]: ""
