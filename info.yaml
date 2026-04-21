@@ -1,9 +1,9 @@
 # Tiny Tapeout project information
 project:
-  title:        "Ring Oscillator Example"      # Project title
+  title:        "External-Loop Ring Oscillator with frequency counter"      # Project title
   author:       "Titus Lux"      # Your name
   discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  "Ring Oscillator for Tiny Tapeout using 5 inverters enable and a counter"      # One line description of what your project does
+  description:  "Ring Oscillator for Tiny Tapeout using 21 inverters with external feedback, window edge counter and output bit selector"      # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
   clock_hz:     0       # Clock frequency in Hz (or 0 if not applicable)
 
@@ -25,9 +25,9 @@ pinout:
   # Inputs
   ui[0]: "EN"     # Enable signal for the ring oscillator
   ui[1]: "RING_IN" # External feedback input for the ring oscillator (conect from uio[0])
-  ui[2]: ""
-  ui[3]: ""
-  ui[4]: ""
+  ui[2]: "MODE"   # Mode select for output (0=stable mid byte, 1=selectable byte based on byte_sel)
+  ui[3]: "BYTE_SEL[0]" # Byte selecct LSB
+  ui[4]: "BYTE_SEL[1]" # Byte select MSB
   ui[5]: ""
   ui[6]: ""
   ui[7]: ""
